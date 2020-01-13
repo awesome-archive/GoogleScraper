@@ -1,3 +1,4 @@
+asyncio
 lxml
 selenium
 cssselect
@@ -5,4 +6,5 @@ requests
 PyMySql
 sqlalchemy
 aiohttp
-# redis
+fake_useragent
+recommonmark

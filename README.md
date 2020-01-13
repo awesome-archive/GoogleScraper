@@ -1,48 +1,66 @@
-# GoogleScraper - Scraping search engines professionally
+# [The successor of GoogleScraper is se-scraper](https://github.com/NikolaiT/se-scraper)
 
-## News
 
-GoogleScraper becomes **finally mature!** In the last months I didn't work at all on GoogleScraper. Reason for this was my overall
-unhappiness with the Project. It is a very complex project with lot's of dependencies and pitfalls where newcomers may stumble.
+## GoogleScraper - Scraping search engines professionally
 
-And most importantly, *I was never satisfied with it's use case.* My initial goal was to make the whole internet searchable and give ordinary people like me independent access to the internet's information again. But this is never going to work by scraping search engines. This is the completely wrong way. Search engines cannot represent the internet and do hide information from you.
 
-#### Why continuing this Project then?
+[![pypi](https://img.shields.io/pypi/v/GoogleScraper.svg?style=for-the-badge)](https://github.com/NikolaiT/GoogleScraper)
+[![Donate](https://img.shields.io/badge/donate-paypal-blue.svg?style=for-the-badge)](https://www.paypal.me/incolumitas)
 
-Because GoogleScraper has its reason to live: Gain information on how search engines see the internet. Especially when it comes to **SEO and marketing**. For this very reason I will continue to maintain this project. But to say it: GoogleScraper will never support **massive gathering of data**. If you want to know which servers are running Drupal or Wordpress, you are wrong here. If you want to know all servers with a specific string in it's html body you are also wrong. This leads us to...
+## [Scrapeulous.com](https://scrapeulous.com/) - Scraping Service
 
-#### But how can I scrape the internet then :/ ?
+GoogleScraper is a open source tool and will remain a open source tool in the future.
 
-Well my son, I am working on this. Let's just say I need to learn some Rust the next weeks. Or maybe I will use C. But Rust looks sooooo neat. And it's time ot learn some concepts about computer networks and about real scraping & indexing & crawling...
+Also the modern successor of GoogleScraper, the node tool [se-scraper](https://github.com/NikolaiT/se-scraper), will remain open source and free.
 
-Look [here to get an idea how to use asynchronous mode](http://scrapeulous.com/googlescraper-260-keywords-in-a-second.html).
+Some people however would want to quickly have a service that lets them scrape some data from Google or
+any other search engine. For this reason, I created the web service [scrapeulous.com](https://scrapeulous.com/).
+
+## Switching from Python to Javascript/puppeteer
+
+Last State: **Feburary 2019**
+
+The successor of GoogleScraper can be [found here](https://github.com/NikolaiT/se-scraper)
+
+This means that I won't maintain this project anymore. All new development goes in the above project.
+
+There are several reasons why I won't continue to put much effort into this project.
+
+1. Python is not the language/framework for modern scraping. Node/Javascript is. The reason is puppeteer. puppeteer is the de-facto standard for controlling and automatizing web browsers (especially Chrome). This project uses Selenium. Selenium is kind of old and outdated.
+2. Scraping in 2019 is almost completely reduced to controlling webbrowsers. There is no more need to scrape directly on the HTTP protocol level. It's too bugy and too easy to fend of by anit-bot mechanisms. And this project still supports raw http requests.
+3. Scraping should be parallelized in the cloud or among a set of dedicated machines. GoogleScraper cannot handle such use cases without significant effort.
+4. This project is extremely buggy.
+
+For this reason I am going to continue developing a scraping library named https://www.npmjs.com/package/se-scraper in Javascript which runs on top of puppeteer.
+
+You can download the app here: https://www.npmjs.com/package/se-scraper
+
+It supports a wide range of different search engines and is much more efficient than GoogleScraper. The code base is also much less complex without threading/queueing and complex logging capabilities.
+
+## August/September 2018
+
+For questions you can [contact me on my wegpage](https://incolumitas.com/) and write me an email there.
+
+This project is back to live after two years of abandonment. In the coming weeks, I will take some time to update all functionality to the most recent developments. This encompasses updating all Regexes and changes in search engine behavior. After a couple of weeks, you can expect this project to work again as documented here.
 
 
 ### Table of Contents
 
-1. [Installation](#install)
-2. [Quick Start](#quick)
-3. [Asynchronous mode](#async)
-4. [About](#about)
-5. [Usage with Python](#usage)
-6. [Command line usage (read this!)](#cli-usage)
+1. [Installation](#installation)
+2. [Quick Start](#quick-start)
+3. [Asynchronous mode](#Asynchronous-mode)
+4. [Testing](#testing)
+5. [About](#about)
+6. [Command line usage](#command-line-usage)
 7. [Contact](#contact)
 
-
-<a name="install" \>
 ## Installation
 
-GoogleScraper is written in Python 3. You should install at least Python 3.4. The last major development was all done with Python3.5. So when using 
-Ubuntu 15.10 and Python3.5 for instance, please install:
+GoogleScraper is written in Python 3. You should install at least Python 3.6. The last major development was all done with Python 3.7. So when using Ubuntu 16.04 and Python 3.7 for instance, please install Python 3 from the official packages. I use the [Anaconda Python distribution](https://anaconda.org/anaconda/python), which does work very well for me.
 
-```
-sudo apt-get install python3.5-dev
-```
+Furthermore, you need to install the Chrome Browser and also the ChromeDriver for Selenium mode. Alternatively install the Firefox Browser and the geckodriver for Selenium Mode. See instructions below.
 
-Furthermore, you need to install the Chrome Browser, maybe even the ChromeDriver for Selenium mode. On Ubuntu 14.04 for instance,
-you certainly have to install the Chrome driver.
-
-You can install GoogleScraper comfortably with pip:
+You can also install GoogleScraper comfortably with pip:
 
 ```
 virtualenv --python python3 env
@@ -50,7 +68,9 @@ source env/bin/activate
 pip install GoogleScraper
 ```
 
-#### Alternatively install directly from Github:
+Right now (September 2018) this is discouraged. Please install from latest Github sources.
+
+### Alternatively install directly from Github
 
 Sometimes the newest and most awesome stuff is not available in the cheeseshop (That's how they call
 https://pypi.python.org/pypi/pip). Therefore you maybe want to install GoogleScraper from the latest source that resides in this Github repository. You can do so like this:
@@ -61,35 +81,48 @@ source env/bin/activate
 pip install git+git://github.com/NikolaiT/GoogleScraper/
 ```
 
-Please note however, that some features and examples might not work as expected. I also don't guarantee that
+Please note that some features and examples might not work as expected. I also don't guarantee that
 the app even runs. I only guarantee (to a certain degree at least) that installing from pip will yield a
 usable version.
 
-### On Windows
 
-On windows, you need to install some extensions manually: Lxml and Chromedriver:
-
-#### lxml
-
-Download the correct wheel file here: http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml
-
-Then copy the downloaded file in your python root directory: C:\Python34\Scripts\
-Then from this directory, issue the command in a cmd shell: ```pip install wheel_file.whl```
-Of course the file has the name as it was downloaded.
-
-#### chromedriver
+### Chromedriver
 
 Download the latest chromedriver from here: https://sites.google.com/a/chromium.org/chromedriver/downloads
-Then copy the **chromedriver.exe** in the C:\Python34\ directory.
 
-Then go back to C:\Python34\Scripts\ and issue the command: ```pip install GoogleScraper```
+Unzip the driver and save it somewhere and then update the `chromedriver_path` in the GoogleScraper configuration file `scrape_config.py` to the path where you saved the driver `chromedriver_path = 'Drivers/chromedriver'`
 
-This should be it.
 
-<a name="quick" />
+### Geckodriver
+
+Download the latest geckodriver from here: https://github.com/mozilla/geckodriver/releases
+
+Unzip the driver and save it somewhere and then update the `geckodriver_path` in the GoogleScraper configuration file `scrape_config.py` to the path where you saved the driver `geckodriver_path = 'Drivers/geckodriver'`
+
+### Update the settings for selenium and firefox/chrome
+
+Update the following settings in the GoogleScraper configuration file `scrape_config.py` to your values.
+
+```
+# chrome driver executable path
+# get chrome drivers here: https://chromedriver.storage.googleapis.com/index.html?path=2.41/
+chromedriver_path = 'Drivers/chromedriver'
+
+# geckodriver executable path
+# get gecko drivers here: https://github.com/mozilla/geckodriver/releases
+geckodriver_path = 'Drivers/geckodriver'
+
+# path to firefox binary
+firefox_binary_path = '/home/nikolai/firefox/firefox'
+
+# path to chromium browser binary
+chrome_binary_path = '/usr/bin/chromium-browser'
+```
+
+
 ## Quick Start
 
-Install as described above.
+Install as described above. Make sure that you have the selenium drivers for chrome/firefox if you want to use GoogleScraper in selenium mode.
 
 See all options
 ```
@@ -98,35 +131,30 @@ GoogleScraper -h
 
 Scrape the single keyword "apple" with http mode:
 ```
-GoogleScraper -m http --keyword "apple" -v2
+GoogleScraper -m http --keyword "apple" -v info
 ```
 
-Scrape all keywords that are in keywords.txt in selenium mode (with real browsers):
+Scrape all keywords that are in the file `SearchData/5words` in selenium mode using chrome in headless mode:
 ```
-GoogleScraper -m selenium --keyword-file keywords.txt -v2
+GoogleScraper -m selenium --sel-browser chrome --browser-mode headless --keyword-file SearchData/5words -v info
 ```
 
-Scrape all keywords that are in 
+Scrape all keywords that are in
 + keywords.txt
 + with http mode
-+ using 10 threads
-+ scrape in the search engines google, bing and yahoo
++ using 5 threads
++ scrape in the search engines bing and yahoo
 + store the output in a JSON file
-+ increase verbosity
-+ and use a proxy file named "proxies.txt"
++ increase verbosity to the debug level
 ```
-GoogleScraper -m http --keyword-file keywords.txt --num-workers 10 --proxy-file proxies.txt --search-engines "google,bing,yahoo" --output-filename output.json -v2
-```
-
-Do an image search for the keyword "K2 mountain" on some search engines:
-
-```
-GoogleScraper -s "bing,baidu,yahoo,google,yandex" -q "K2 mountain" -t image -v2
+GoogleScraper -m http --keyword-file SearchData/some_words.txt --num-workers 5 --search-engines "bing,yahoo" --output-filename threaded-results.json -v debug
 ```
 
-Have fun :D
+Do an image search for the keyword "K2 mountain" on google:
 
-<a name="async" />
+```
+GoogleScraper -s "google" -q "K2 mountain" -t image -v info
+```
 
 ## Asynchronous mode
 
@@ -137,15 +165,25 @@ This is probably the most awesome feature of GoogleScraper. You can scrape with 
 
 Example for Asynchronous mode:
 
-Search the keywords in the keyword file **keywords.txt** on bing and yahoo. By default asynchronous mode
-spawns 100 requests at the same time. This means around 100 requests per second (depends on the actual connection...).
+Search the keywords in the keyword file [SearchData/marketing-models-brands.txt](SearchData/marketing-models-brands.txt) on bing and yahoo. By default asynchronous mode spawns 100 requests at the same time. This means around 100 requests per second (depends on the actual connection...).
 
 ```
-GoogleScraper -s "bing,yahoo" --keyword-file keywords.txt -m http-async -v3
+GoogleScraper -s "bing,yahoo" --keyword-file SearchData/marketing-models-brands.txt -m http-async -v info -o marketing.json
 ```
 
+The results (partial results, because there were too many keywords for one IP address) can be inspected in the file [Outputs/marketing.json](Outputs/marketing.json).
 
-<a name="about" />
+
+## Testing GoogleScraper
+
+GoogleScraper is hugely complex. Because GoogleScraper supports many search engines and the HTML and Javascript of those Search Providers changes frequently, it is often the case that GoogleScraper ceases to function for some search engine. To spot this, you can run **functional tests**.
+
+For example the test below runs a scraping session for Google and Bing and tests that the gathered data looks more or less okay.
+
+```
+python -m pytest Tests/functional_tests.py::GoogleScraperMinimalFunctionalTestCase
+```
+
 ## What does GoogleScraper.py?
 
 GoogleScraper parses Google search engine results (and many other search engines *_*) easily and in a fast way. It allows you to extract all found
@@ -158,7 +196,7 @@ There are unlimited *usage scenarios*:
 + Discover trends.
 + Compile lists of sites to feed your own database.
 + Many more use cases...
-+ quite easily extendable since the code is well documented
++ Quite easily extendable since the code is well documented
 
 First of all you need to understand that GoogleScraper uses **two completely different scraping approaches**:
 + Scraping with low level http libraries such as `urllib.request` or `requests` modules. This simulates the http packets sent by real browsers.
@@ -169,9 +207,9 @@ search engines have no easy way detecting it.
 
 GoogleScraper is implemented with the following techniques/software:
 
-+ Written in Python 3.4
-+ Uses multithreading/asynchronous IO. (two possible approaches, currently only multi-threading is implemented)
-+ Supports parallel google scraping with multiple IP addresses.
++ Written in Python 3.7
++ Uses multithreading/asynchronous IO.
++ Supports parallel scraping with multiple IP addresses.
 + Provides proxy support using [socksipy][2] and built in browser proxies:
   * Socks5
   * Socks4
@@ -220,157 +258,7 @@ Some interesting technologies/software to do so:
 + [Mechanize](http://wwwsearch.sourceforge.net/mechanize/)
 
 
-<a name="usage" \>
-## Example Usage
-Here you can learn how to use GoogleScrape from within your own Python scripts.
-
-```python
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
-"""
-Shows how to control GoogleScraper programmatically.
-"""
-
-import sys
-from GoogleScraper import scrape_with_config, GoogleSearchError
-from GoogleScraper.database import ScraperSearch, SERP, Link
-
-
-### EXAMPLES OF HOW TO USE GoogleScraper ###
-
-# very basic usage
-def basic_usage():
-    # See in the config.cfg file for possible values
-    config = {
-        'SCRAPING': {
-            'use_own_ip': 'True',
-            'keyword': 'Let\'s go bubbles!',
-            'search_engines': 'yandex',
-            'num_pages_for_keyword': 1
-        },
-        'SELENIUM': {
-            'sel_browser': 'chrome',
-        },
-        'GLOBAL': {
-            'do_caching': 'False'
-        }
-    }
-
-    try:
-        sqlalchemy_session = scrape_with_config(config)
-    except GoogleSearchError as e:
-        print(e)
-
-    # let's inspect what we got
-
-    for search in sqlalchemy_session.query(ScraperSearch).all():
-        for serp in search.serps:
-            print(serp)
-            for link in serp.links:
-                print(link)
-
-
-# simulating a image search for all search engines that support image search
-# then download all found images :)
-def image_search():
-    target_directory = 'images/'
-
-    # See in the config.cfg file for possible values
-    config = {
-        'SCRAPING': {
-            'keyword': 'beautiful landscape', # :D hehe have fun my dear friends
-            'search_engines': 'yandex,google,bing,baidu,yahoo', # duckduckgo not supported
-            'search_type': 'image',
-            'scrapemethod': 'selenium'
-        }
-    }
-
-    try:
-        sqlalchemy_session = scrape_with_config(config)
-    except GoogleSearchError as e:
-        print(e)
-
-    image_urls = []
-    search = sqlalchemy_session.query(ScraperSearch).all()[-1]
-
-    for serp in search.serps:
-        image_urls.extend(
-            [link.link for link in serp.links]
-        )
-
-    print('[i] Going to scrape {num} images and saving them in "{dir}"'.format(
-        num=len(image_urls),
-        dir=target_directory
-    ))
-
-    import threading,requests, os, urllib
-
-    class FetchResource(threading.Thread):
-        """Grabs a web resource and stores it in the target directory"""
-        def __init__(self, target, urls):
-            super().__init__()
-            self.target = target
-            self.urls = urls
-
-        def run(self):
-            for url in self.urls:
-                url = urllib.parse.unquote(url)
-                with open(os.path.join(self.target, url.split('/')[-1]), 'wb') as f:
-                    try:
-                        content = requests.get(url).content
-                        f.write(content)
-                    except Exception as e:
-                        pass
-                    print('[+] Fetched {}'.format(url))
-
-    # make a directory for the results
-    try:
-        os.mkdir(target_directory)
-    except FileExistsError:
-        pass
-
-    # fire up 100 threads to get the images
-    num_threads = 100
-
-    threads = [FetchResource('images/', []) for i in range(num_threads)]
-
-    while image_urls:
-        for t in threads:
-            try:
-                t.urls.append(image_urls.pop())
-            except IndexError as e:
-                break
-
-    threads = [t for t in threads if t.urls]
-
-    for t in threads:
-        t.start()
-
-    for t in threads:
-        t.join()
-
-    # that's it :)
-
-### MAIN FUNCTION ###
-
-if __name__ == '__main__':
-
-    usage = 'Usage: {} [basic|image]'.format(sys.argv[0])
-    if len(sys.argv) != 2:
-        print(usage)
-    else:
-        arg = sys.argv[1]
-        if arg == 'basic':
-            basic_usage()
-        elif arg == 'image':
-            image_search()
-        else:
-            print(usage)
-```
-
-<a name="cli-usage" \>
-## Direct command line usage
+## More detailed Explanation
 
 Probably the best way to use GoogleScraper is to use it from the command line and fire a command such as
 the following:
@@ -420,7 +308,7 @@ In case you want to use GoogleScraper.py in *http* mode (which means that raw ht
 ```
 GoogleScraper -m http -p 1 -n 25 -q "white light"
 ```
-<a name="contact" \>
+
 ## Contact
 
 If you feel like contacting me, do so and send me a mail. You can find my contact information on my [blog][3].

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+	# -*- coding: utf-8 -*-
 
 """
 This is the basic GoogleScraper configuration file.
@@ -15,6 +15,7 @@ and handles output.
 # How and if results are printed when running GoogleScraper.
 # if set to 'all', then all data from results are outputted
 # if set to 'summarize', then only a summary of results is given.
+# if set to anything else, no output will be given at all.
 print_results = 'all'
 
 # The name of the database that is written to the same
@@ -45,6 +46,12 @@ log_sqlalchemy = False
 # DEBUG = 10
 # NOTSET = 0
 log_level = 'INFO'
+
+# Log format string
+log_format = '[%(threadName)s] - %(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
+# Logfile
+log_file = 'googlescraper.log'
 
 """
 [SCRAPING]
@@ -98,6 +105,31 @@ search_engines = ['google', ]
 # The google base search url
 google_search_url = 'https://www.google.com/search?'
 
+# whether to change the search settings prior to scraping
+# when this is set to False google will search with
+# the default search settings that your (selenium) browser supports
+google_selenium_search_settings = False
+
+# manually select search settings
+# only possible in visible browsers
+# when this is set, google won't block you as likely
+google_selenium_manual_settings = False
+
+# the following options only take effect when
+# google_selenium_search_settings is set to True
+
+# Search Settings for Google Scraping in Selenium Mode
+# 10, 20, 30, 50, 100
+google_selenium_num_results = 100
+# Private results help find more relevant content for you, including content and connections that only you can see.
+google_selenium_personalization = False
+# use a country code such as US, DE, GB, CH, ...
+google_selenium_region = 'DE'
+google_selenium_safe_search = False
+# the language for google search results
+google_selenium_language = 'English'
+
+
 # The yandex base search url
 yandex_search_url = 'http://yandex.ru/yandsearch?'
 
@@ -125,7 +157,7 @@ ask_search_url = 'http://de.ask.com/web?'
 search_type = 'normal'
 
 # The scrape method. Can be 'http' or 'selenium' or 'http-async'
-# http mode uses http packets directly, whereas selenium mode uses a real browser (or phantomjs).
+# http mode uses http packets directly, whereas selenium mode uses a real browser.
 # http_async uses asyncio.
 scrape_method = 'selenium'
 
@@ -210,25 +242,56 @@ cachedir = '.scrapecache/'
 # After how many hours should the cache be cleaned
 clean_cache_after = 48
 
-# Sleeping ranges.
-# The scraper in selenium mode makes random modes every N seconds as specified in the given intervals.
-# Format=  [Every Nth second when to sleep]# ([Start range], [End range])
+# turn off sleeping pauses alltogether.
+# Dont set this to False if you don't know what you are doing.
+do_sleep = True
+
+# Sleeping distribution.
+# Sleep a given amount of time as a function of the number of searches done.
+# The scraper in selenium mode makes random pauses at certain times.
+# Please add integer keys to sleeping_ranges such that the sum of
+# the keys amounts to 100. Then the key defines the probability of how many times
+# this sleeping range occurs in a total of 100 searches.
+# For example:
+# sleeping_ranges = {
+#     70:  (1, 2), # sleep between 1-2 seconds with probability 70/100
+#     20:  (2, 6), # sleep between 2-6 seconds with probability 20/100
+#     5: (10, 20), # sleep between 10-20 seconds with probability 5/100
+#     3: (20, 30), # ...
+#     2: (20, 40),
+# }
 sleeping_ranges = {
-    1:  (1, 2),
-    5:  (2, 4),
-    30: (10, 20),
-    127: (30, 50),
+    70:  (1, 3),
+    20:  (3, 6),
+    5: (10, 20),
+    3: (20, 25),
+    2: (25, 30),
 }
 
 # Search engine specific sleeping ranges
 # If you add the name of the search engine before a
 # option {search_engine_name}_sleeping_ranges, then
-# only this search engine will sleep the supplied ranges.
+# only this search engine will sleep the given ranges.
 google_sleeping_ranges = {
-    1:  (2, 3),
-    5:  (3, 5),
-    30: (10, 20),
-    127: (30, 50),
+    70:  (1, 3),
+    20:  (3, 6),
+    5: (10, 20),
+    3: (20, 25),
+    2: (25, 30),
+}
+
+# sleep a certain time after the Nth page has been scraped
+fixed_sleeping_ranges = {
+    1000:  (180, 420),
+    2000:  (180, 420),
+    3000:  (180, 420),
+    4000:  (180, 420),
+    5000:  (180, 420),
+    6000:  (180, 420),
+    7000:  (180, 420),
+    8000:  (180, 420),
+    9000:  (180, 420),
+    10000:  (180, 420),
 }
 
 # If the search should be simulated instead of being done.
@@ -243,9 +306,25 @@ fix_cache_names = False
 [SELENIUM]
 All settings that only apply for requesting with real browsers.
 """
+# which browser to use in selenium mode. Valid values = ('chrome', 'firefox')
+sel_browser = 'chrome'
 
-# which browser to use in selenium mode. Valid values=  ('Chrome', 'Firefox', 'Phantomjs')
-sel_browser = 'Chrome'
+# in which mode the browser is started. Valid values = ('normal', 'headless')
+browser_mode = 'headless'
+
+# chrome driver executable path
+# get chrome drivers here: https://chromedriver.storage.googleapis.com/index.html?path=2.41/
+chromedriver_path = '/home/nikolai/projects/private/Drivers/chromedriver'
+
+# geckodriver executable path
+# get gecko drivers here: https://github.com/mozilla/geckodriver/releases
+geckodriver_path = '/home/nikolai/projects/private/Drivers/geckodriver'
+
+# path to firefox binary
+firefox_binary_path = '/home/nikolai/firefox/firefox'
+
+# path to chromium browser binary
+chrome_binary_path = '/usr/bin/chromium-browser'
 
 # Manual captcha solving
 # If this parameter is set to a Integer, the browser waits for the user
@@ -254,13 +333,25 @@ sel_browser = 'Chrome'
 # Set to False to disable.
 # If the captcha isn't solved in the specified time interval, the browser instance
 # with the current proxy is discarded.
-manual_captcha_solving = False
+manual_captcha_solving = True
+
+
+# captch solving service
+
+# enable captcha solving service
+captcha_solving_service = False
+# @TODO: Integrate https://2captcha.com/
 
 # Xvfb display option
-# You should start xvfb at your own
+# You should start xvfb on your own before this option has any effect.
 # Format=  [hostname]= displaynumber[.screennumber], see X(7) manuel for details
 # will set environment variable $DISPLAY to it
 xvfb_display = None
+
+
+# how many tabs per instance
+num_tabs = 1
+
 
 """
 [HTTP]
@@ -275,7 +366,7 @@ google_search_url = 'https://www.google.com/search?'
 
 """
 [HTTP_ASYNC]
-Settings specificly for the asynchronous mode.
+Settings specific for the asynchronous mode.
 """
 
 # The number of concurrent requests that are used for scraping

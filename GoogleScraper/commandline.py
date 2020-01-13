@@ -19,7 +19,7 @@ def get_command_line(only_print_help=False):
                                                  'Multithreading support.',
                                      epilog='GoogleScraper {version}. This program might infringe the TOS of the '
                                             'search engines. Please use it on your own risk. (c) by Nikolai Tschacher'
-                                            ', 2012-2015. incolumitas.com'.format(version=__version__))
+                                            ', 2012-2019. https://scrapeulous.com/'.format(version=__version__))
 
     parser.add_argument('-m', '--scrape-method', type=str, default='http',
                         help='The scraping type. There are currently three types: "http", "selenium" and "http-async". '
@@ -29,8 +29,12 @@ def get_command_line(only_print_help=False):
                              'second if you have the necessary number of proxies available. ',
                         choices=('http', 'selenium', 'http-async'))
 
-    parser.add_argument('--sel-browser', choices=['firefox', 'chrome', 'phantomjs'], default='phantomjs',
-                        help='The browser frontend for selenium scraping mode. Does only make sense if --scrape-method is set to "selenium"')
+    parser.add_argument('--sel-browser', choices=['firefox', 'chrome'], default='chrome',
+                        help='The browser frontend for selenium scraping mode. Takes only effect if --scrape-method is set to "selenium"')
+
+    parser.add_argument('--browser-mode', choices=['normal', 'headless'], default='normal',
+                        help='In which mode the browser is started. Valid values = (normal, headless)')
+
 
     keyword_group = parser.add_mutually_exclusive_group()
 
@@ -80,12 +84,16 @@ def get_command_line(only_print_help=False):
                              'because GoogleScrape comes shipped with a thoroughly commented configuration file named '
                              '"scrape_config.py"')
 
+    parser.add_argument('--check-detection', type=str, dest='check_detection', action='store',
+                        help='Check if the given search engine blocked you from scrapign. Often detection can be determined'
+                         'if you have to solve a captcha.')
+
     parser.add_argument('--simulate', action='store_true', default=False, required=False,
                         help='''If this flag is set, the scrape job and its estimated length will be printed.''')
 
     loglevel_help = '''
 Set the debug level of the application. Use the string representation
-instead of the numbers. High numbers will output less, lower numbers more.
+instead of the numbers. High numbers will output less, low numbers more.
 CRITICAL = 50,
 FATAL = CRITICAL,
 ERROR = 40,
@@ -96,8 +104,9 @@ DEBUG = 10,
 NOTSET = 0
     '''
 
-    parser.add_argument('-v', '--verbosity', '--loglevel', '--log-level',
-                        type=str, dest='log_level', default='INFO', help=loglevel_help)
+    parser.add_argument('-v', '--verbosity', '--loglevel',
+                        dest='log_level', default='INFO', type = str.lower,
+                         choices=['debug', 'info', 'warning', 'warn', 'error', 'critical', 'fatal'], help=loglevel_help)
 
     parser.add_argument('--print-results', choices=['all', 'summarize'], default='all',
                         help='Whether to print all results ("all"), or only print a summary ("summarize")')

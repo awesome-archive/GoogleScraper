@@ -30,12 +30,12 @@ class Parser():
     """Parses SERP pages.
 
     Each search engine results page (SERP) has a similar layout:
-    
+
     The main search results are usually in a html container element (#main, .results, #leftSide).
-    There might be separate columns for other search results (like ads for example). Then each 
+    There might be separate columns for other search results (like ads for example). Then each
     result contains basically a link, a snippet and a description (usually some text on the
     target site). It's really astonishing how similar other search engines are to Google.
-    
+
     Each child class (that can actual parse a concrete search engine results page) needs
     to specify css selectors for the different search types (Like normal search, news search, video search, ...).
 
@@ -73,10 +73,10 @@ class Parser():
         """Create new Parser instance and parse all information.
 
         Args:
-            html: The raw html from the search engine search. If not provided, you can parse 
+            html: The raw html from the search engine search. If not provided, you can parse
                     the data later by calling parse(html) directly.
             searchtype: The search type. By default "normal"
-            
+
         Raises:
             Assertion error if the subclassed
             specific parser cannot handle the the settings.
@@ -109,8 +109,8 @@ class Parser():
 
     def parse(self, html=None):
         """Public function to start parsing the search engine results.
-        
-        Args: 
+
+        Args:
             html: The raw html data to extract the SERP entries from.
         """
         if html:
@@ -137,7 +137,7 @@ class Parser():
 
     def _parse(self, cleaner=None):
         """Internal parse the dom according to the provided css selectors.
-        
+
         Raises: InvalidSearchTypeException if no css selectors for the searchtype could be found.
         """
         self.num_results = 0
@@ -211,13 +211,11 @@ class Parser():
 
                     serp_result['rank'] = index + 1
 
-                    # only add items that have not None links.
-                    # Avoid duplicates. Detect them by the link.
+                    # Avoid duplicates. Duplicates are serp_result elemnts where the 'link' and 'title' are identical
                     # If statement below: Lazy evaluation. The more probable case first.
-                    if 'link' in serp_result and serp_result['link'] and \
-                            not [e for e in self.search_results[result_type] if e['link'] == serp_result['link']]:
-                        self.search_results[result_type].append(serp_result)
-                        self.num_results += 1
+                    # if not [e for e in self.search_results[result_type] if (e['link'] == serp_result['link'] and e['title'] == serp_result['title']) ]:
+                    self.search_results[result_type].append(serp_result)
+                    self.num_results += 1
 
     def advanced_css(self, selector, element):
         """Evaluate the :text and ::attr(attr-name) additionally.
@@ -279,7 +277,7 @@ class Parser():
 
     def after_parsing(self):
         """Subclass specific behaviour after parsing happened.
-        
+
         Override in subclass to add search engine specific behaviour.
         Commonly used to clean the results.
         """
@@ -312,7 +310,7 @@ class Parser():
 
 
 """
-Here follow the different classes that provide CSS selectors 
+Here follow the different classes that provide CSS selectors
 for different types of SERP pages of several common search engines.
 
 Just look at them and add your own selectors in a new class if you
@@ -357,9 +355,9 @@ class GoogleParser(Parser):
             'us_ip': {
                 'container': '#center_col',
                 'result_container': 'div.g ',
-                'link': 'h3.r > a:first-child::attr(href)',
+                'link': 'div.r > a:first-child::attr(href)',
                 'snippet': 'div.s span.st::text',
-                'title': 'h3.r > a:first-child::text',
+                'title': 'div.r > a > h3::text',
                 'visible_link': 'cite::text'
             },
             'de_ip': {
@@ -382,9 +380,9 @@ class GoogleParser(Parser):
             'us_ip': {
                 'container': '#center_col',
                 'result_container': 'li.ads-ad',
-                'link': 'h3.r > a:first-child::attr(href)',
+                'link': 'div.r > a:first-child::attr(href)',
                 'snippet': 'div.s span.st::text',
-                'title': 'h3.r > a:first-child::text',
+                'title': 'div.r > a > h3::text',
                 'visible_link': '.ads-visurl cite::text',
             },
             'de_ip': {
@@ -396,6 +394,18 @@ class GoogleParser(Parser):
                 'visible_link': '.ads-visurl cite::text',
             }
         },
+        # those css selectors are probably not worth much
+        'maps_local': {
+            'de_ip': {
+                'container': '#center_col',
+                'result_container': '.ccBEnf > div',
+                'link': 'link::attr(href)',
+                'snippet': 'div.rl-qs-crs-t::text',
+                'title': 'div[role="heading"] span::text',
+                'rating': 'span.BTtC6e::text',
+                'num_reviews': '.rllt__details::text',
+            }
+        },
         'ads_aside': {
 
         }
@@ -404,15 +414,16 @@ class GoogleParser(Parser):
     image_search_selectors = {
         'results': {
             'de_ip': {
-                'container': 'li#isr_mc',
-                'result_container': 'div.rg_di',
-                'link': 'a.rg_l::attr(href)'
+                'container': '#res',
+                'result_container': '.rg_bx',
+                'link': 'a.rg_l::attr(href)',
+                'snippet': '.a-no-hover-decoration::text',
             },
-            'de_ip_raw': {
-                'container': '.images_table',
-                'result_container': 'tr td',
-                'link': 'a::attr(href)',
-                'visible_link': 'cite::text',
+            'de_ip_http_mode': {
+                'container': '#search',
+                'result_container': '.rg_bx',
+                'link': 'a.rg_l::attr(href)',
+                'snippet': '.a-no-hover-decoration::text',
             }
         }
     }
@@ -422,12 +433,12 @@ class GoogleParser(Parser):
 
     def after_parsing(self):
         """Clean the urls.
-        
+
         A typical scraped results looks like the following:
-        
+
         '/url?q=http://www.youtube.com/user/Apple&sa=U&ei=\
         lntiVN7JDsTfPZCMgKAO&ved=0CFQQFjAO&usg=AFQjCNGkX65O-hKLmyq1FX9HQqbb9iYn9A'
-        
+
         Clean with a short regex.
         """
         super().after_parsing()
@@ -477,19 +488,19 @@ class YandexParser(Parser):
     # @TODO: In december 2015, I saw that yandex only shows the number of search results in the search input field
     # with javascript. One can scrape it in plain http mode, but the values are hidden in some javascript and not
     # accessible with normal xpath/css selectors. A normal text search is done.
-    num_results_search_selectors = ['.serp-adv .serp-item__wrap > strong', '.input__found_visibility_visible font font::text']
+    num_results_search_selectors = ['.serp-list .serp-adv__found::text', '.input__found_visibility_visible font font::text']
 
     page_number_selectors = ['.pager__group .button_checked_yes span::text']
 
     normal_search_selectors = {
         'results': {
             'de_ip': {
-                'container': 'div.serp-list',
-                'result_container': 'div.serp-item',
-                'link': 'a.serp-item__title-link::attr(href)',
-                'snippet': 'div.serp-item__text::text',
-                'title': 'a.serp-item__title-link::text',
-                'visible_link': 'a.serp-url__link::attr(href)'
+                'container': '.serp-list',
+                'result_container': '.serp-item',
+                'link': 'a.link::attr(href)',
+                'snippet': 'div.text-container::text',
+                'title': 'div.organic__url-text::text',
+                'visible_link': '.typo_type_greenurl::text'
             }
         }
     }
@@ -913,6 +924,23 @@ class AskParser(Parser):
                 'snippet': '.abstract::text',
                 'title': '.txt_lg.b::text',
                 'visible_link': '.durl span::text'
+            },
+            'de_ip_december_2015': {
+                'container': '.l-mid-content',
+                'result_container': '.web-result',
+                'link': '.web-result-title > a::attr(href)',
+                'snippet': '.web-result-description::text',
+                'title': '.web-result-title > a::text',
+                'visible_link': '.web-result-url::text'
+            },
+            # as requested by httm mode
+            'de_ip_december_2015_raw_http': {
+                'container': '#midblock',
+                'result_container': '#teoma-results .wresult',
+                'link': 'a.title::attr(href)',
+                'snippet': '.abstract::text',
+                'title': 'a.title::text',
+                'visible_link': '.durl span::text'
             }
         },
     }
@@ -1049,12 +1077,12 @@ def parse_serp(config, html=None, parser=None, scraper=None, search_engine=None,
 
 if __name__ == '__main__':
     """Originally part of https://github.com/NikolaiT/GoogleScraper.
-    
-    Only for testing purposes: May be called directly with an search engine 
+
+    Only for testing purposes: May be called directly with an search engine
     search url. For example:
-    
+
     python3 parsing.py 'http://yandex.ru/yandsearch?text=GoogleScraper&lr=178&csg=82%2C4317%2C20%2C20%2C0%2C0%2C0'
-    
+
     Please note: Using this module directly makes little sense, because requesting such urls
     directly without imitating a real browser (which is done in my GoogleScraper module) makes
     the search engines return crippled html, which makes it impossible to parse.
